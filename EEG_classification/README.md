@@ -1,6 +1,6 @@
 ## EEG Classification
 
-We decided that in order to apply all that we learned this summer we would work on a side prproject using the resources the university could offer us. One of the labs at the university had access to EEGs, which is a device that can test electrical activity in the brain. Once given access to this device we worked on recording and parsing data so that we could decide what type of network to try the problem on. We decided that because it was not reasonable to collect a ton of data using the EEG, the problem would work best in a oneshot learning network. We eventually tried to classify three different problems using the EEG. 
+We decided that in order to apply all that we learned this summer we would work on a side prproject using the resources the university could offer us. One of the labs at the university had access to [EEGs], which is a device that can test electrical activity in the brain. Once given access to this device we worked on recording and parsing data so that we could decide what type of network to try the problem on. We decided that because it was not reasonable to collect a ton of data using the EEG, the problem would work best in a oneshot learning network. We eventually tried to classify three different problems using the EEG. 
 
 1. Collected data of four different people focusing on the same image and tried to distinguish between people.
 2. Collected data of one person focusing on a slideshow that alternated between pictures of storms and pictures of beaches and tried to distinguish between the two classes.
@@ -12,4 +12,6 @@ While we were able to get some promising results when it came to the first probl
 
 * **Four Problem Solving Network Files:** classify_math_relax.py, classify_person_2.py, classify_person_4.py, classify_weather.py
 * **Two Files for Loading Data:** load_5s_data.py, load_data.py
-* **Three Subdirectories Containing Data:** people_data, relax_math_data, weather_data  
+* **Three Subdirectories Containing Data:** people_data, relax_math_data, weather_data 
+
+[EEGs]: https://en.wikipedia.org/wiki/Electroencephalography 
