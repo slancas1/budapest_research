@@ -8,7 +8,7 @@ def load_data(filename):
 	data = np.genfromtxt(filename, delimiter=',', usecols=(2), skip_header=1)
 	return data
 
-path = '/Users/johnmcguinness/Downloads/'
+path = '/Users/Sophie/Downloads/'
 filename = '{}eegIDRecord.csv'.format(path)
 
 data = load_data(filename)

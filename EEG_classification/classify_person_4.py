@@ -39,7 +39,7 @@ OneHotLabels = tf.one_hot(InputLabels, NumClasses)
 KeepProb = tf.placeholder(tf.float32) # dropout (keep probability -currently not used)
 
 # Load in EEG data
-directory = './PeopleData/'
+directory = './people_data/'
 data_in = np.load('{}split_person_data_4.npy'.format(directory))
 labels_in = np.load('{}split_person_labels_4.npy'.format(directory))
 

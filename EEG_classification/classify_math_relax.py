@@ -38,7 +38,7 @@ OneHotLabels = tf.one_hot(InputLabels, NumClasses)
 #KeepProb = tf.placeholder(tf.float32) # dropout (keep probability -currently not used)
 
 # Load in EEG data
-directory = './RelaxMathData/'
+directory = './relax_math_data/'
 data_in = np.load('{}math_relax_data.npy'.format(directory))
 labels_in = np.load('{}math_relax_labels.npy'.format(directory))
 

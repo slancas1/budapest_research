@@ -38,7 +38,7 @@ OneHotLabels = tf.one_hot(InputLabels, NumClasses)
 KeepProb = tf.placeholder(tf.float32) # dropout (keep probability -currently not used)
 
 # Load in EEG data
-directory = './WeatherData/'
+directory = './weather_data/'
 data_in = np.load('{}split_data.npy'.format(directory))
 labels_in = np.load('{}split_labels.npy'.format(directory))
 
