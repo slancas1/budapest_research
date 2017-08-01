@@ -29,7 +29,7 @@ Dropout = 0.5 # droupout parameters in the FNN layer - currently not used
 EvalFreq = 100 # evaluate on every 100th iteration
 
 # load data
-path = '../data'
+path = '../../data'
 TrainData = np.load('{}/full_train_images.npy'.format(path))
 TrainLabels = np.load('{}/full_train_labels.npy'.format(path))
 TestData = np.load('{}/full_test_images.npy'.format(path))
