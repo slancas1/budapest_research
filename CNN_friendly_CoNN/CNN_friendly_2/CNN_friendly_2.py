@@ -11,7 +11,6 @@ flags = tf.app.flags
 FLAGS = flags.FLAGS
 now = datetime.datetime.now()
 dt = ('%s_%s_%s_%s' % (now.month, now.day, now.hour, now.minute))
-#print dt
 flags.DEFINE_string('summary_dir', '/tmp/tutorial/{}'.format(dt), 'Summaries directory')
 
 # if summary directory exist, delete the previous summaries
