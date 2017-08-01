@@ -30,10 +30,11 @@ Dropout = 0.5 # droupout parameters in the FNN layer - currently not used
 EvalFreq = 50 # evaluate on every 1000th iteration
 
 # load data
-TrainData = np.load('/Users/Sophie/Desktop/Google Drive/Budapest/Code/python-mnist/full_train_images.npy')
-TrainLabels = np.load('/Users/Sophie/Desktop/Google Drive/Budapest/Code/python-mnist/full_train_labels.npy')
-TestData = np.load('/Users/Sophie/Desktop/Google Drive/Budapest/Code/python-mnist/full_test_images.npy')
-TestLabels = np.load('/Users/Sophie/Desktop/Google Drive/Budapest/Code/python-mnist/full_test_labels.npy')
+path = '../../data'
+TrainData = np.load('{}/full_train_images.npy'.format(path))
+TrainLabels = np.load('{}/full_train_labels.npy'.format(path))
+TestData = np.load('{}/full_test_images.npy'.format(path))
+TestLabels = np.load('{}/full_test_labels.npy'.format(path))
 
 # create tensorflow graph
 InputData = tf.placeholder(tf.float32, [None, Size[0], Size[1], Size[2]]) # network input

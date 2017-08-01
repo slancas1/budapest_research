@@ -29,10 +29,11 @@ EvalFreq = 10 # evaluate on every 100th iteration
 
 # load data
 # load data
-TrainData = np.load('/Users/Sophie/Desktop/Google Drive/Budapest/Code/python-mnist/6and9_train_images.npy')
-TrainLabels = np.load('/Users/Sophie/Desktop/Google Drive/Budapest/Code/python-mnist/6and9_train_labels.npy')
-TestData = np.load('/Users/Sophie/Desktop/Google Drive/Budapest/Code/python-mnist/6and9_test_images.npy')
-TestLabels = np.load('/Users/Sophie/Desktop/Google Drive/Budapest/Code/python-mnist/6and9_test_labels.npy')
+path = '../../data'
+TrainData = np.load('{}/6and9_train_images.npy'.format(path))
+TrainLabels = np.load('{}/6and9_train_labels.npy'.format(path))
+TestData = np.load('{}/6and9_test_images.npy'.format(path))
+TestLabels = np.load('{}/6and9_test_labels.npy'.format(path))
 
 TrainLabels[TrainLabels == 6] = 0
 TrainLabels[TrainLabels == 9] = 1
