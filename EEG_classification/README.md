@@ -4,9 +4,20 @@ We decided that in order to apply all that we learned this summer we would work 
 
 1. Collected data of four different people focusing on the same image and tried to distinguish between people.
 2. Collected data of one person focusing on a slideshow that alternated between pictures of storms and pictures of beaches and tried to distinguish between the two classes.
-3. Collected data of one person relaxing and then doing math questions and tried to distinguish between the two classes. 
+3. Collected data of one person relaxing and then doing math questions and tried to distinguish between the two classes.
 
-While we were able to get some promising results when it came to the first problem, classifying people, we found that the network was not really able to classify better then chance for the other two problems. We think this could have been because the data that was collected was not different enough between the two classes in each given case. Regardless, this was a very cool application to spend some time on this summer.
+
+While we were able to get some promising results when it came to the first problem, classifying people, we found that the network was not really able to classify better then chance for the other two problems. We think this could have been because the data that was collected was not different enough between the two classes in each given case. Regardless, this was a very cool application to spend some time on this summer.i
+
+ADD INFO HERE ABOUT ACTUAL DEVICE, DATA COLLECTION, AND NETWORK
+
+## Use
+
+TO DO
+
+## Results
+
+TO DO
 
 ## Files in Directory
 
