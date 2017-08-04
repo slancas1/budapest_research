@@ -2,7 +2,7 @@
 
 We worked with CNNs towards the end of our training when we first arrived in Budapest. We did the introductory exercises that can be found in this directory in order to gain a basic understanding of CNNs. Our supervisor wanted us to have this foundation because later in the summer we worked on creating a CNN friendly Convolutional Neural Network (CoNN) which can be found [here].
 
-### Basic CNN Background
+## Basic CNN Background
 
 TO DO
 
