@@ -21,14 +21,14 @@ flags.DEFINE_string('summary_dir', '/tmp/tutorial/{}'.format(dt), 'Summaries dir
 BatchLength = 32  # 32 images are in a minibatch
 #Size = [105, 105, 1] # input img will be resized to this size
 Size = [28, 28, 1]
-NumIteration = 200000
+NumIteration = 15000
 LearningRate = 1e-4 # learning rate of the algorithm
-NumClasses = 5 # number of output classes
+NumClasses = 2 # number of output classes
 NumSupportsPerClass = 2
 NumClassesInSubSet = 5
 TrainSize = 10
 TestSize = 10
-EvalFreq = 10 # evaluate on every 1000th iteration
+EvalFreq = 200 # evaluate on every 1000th iteration
 
 # create tensorflow graph
 InputData = tf.placeholder(tf.float32, [None, Size[0], Size[1], Size[2]]) # network input
@@ -86,7 +86,7 @@ def get_train_data(datalist, train_size = TrainSize, test_size = TestSize, num_c
 		img = misc.imread(train_set[k])
 		train_data[k, :, :] = misc.imresize(img, (Size[0], Size[1]))
 
-	train_labels = np.asarray([idx / train_size for idx in range(train_size * num_classes)])
+	train_labels = np.asarray([int(idx / train_size) for idx in range(train_size * num_classes)])
 
 	permutation = np.random.permutation(train_labels.shape[0])
 	train_labels = train_labels[permutation]
@@ -117,7 +117,7 @@ def get_test_data(datalist, train_size = TrainSize, test_size = TestSize, num_cl
 		img = misc.imread(test_set[k])
 		test_data[k, :, :] = misc.imresize(img, (Size[0], Size[1]))
 
-	test_labels = np.asarray([idx / test_size for idx in range(test_size * num_classes)])
+	test_labels = np.asarray([int(idx / test_size) for idx in range(test_size * num_classes)])
 
 	permutation = np.random.permutation(test_labels.shape[0])
 	test_labels = test_labels[permutation]
@@ -162,7 +162,7 @@ def make_support_set(Data, Labels):
 	Label = np.reshape(QueryLabelList, [BatchLength])
 	return QueryData, SupportDataList, Label
 
-NumKernels = [32, 32, 32]
+NumKernels = [16, 16, 16]
 def MakeConvNet(Input, Size, First = False):
 	CurrentInput = Input
 	CurrentInput = (CurrentInput / 255.0) - 0.5
@@ -268,7 +268,7 @@ with tf.Session(config = conf) as Sess:
 			# execute teh session
 			Summary, _, Acc, L, p, c, cp = Sess.run([SummaryOp, Optimizer, Accuracy, Loss, Pred, Correct, CorrectPredictions], feed_dict = {InputData: QueryData, InputLabels: Label, SupportData: SupportDataList})
 
-			if (Step % 10 == 0):
+			if (Step % 100 == 0):
 				print("Iteration: " + str(Step))
 				print("Accuracy: " + str(Acc))
 				print("Loss: " + str(L))

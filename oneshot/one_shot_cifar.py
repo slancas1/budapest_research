@@ -5,6 +5,9 @@ import tensorflow as tf
 import numpy as np
 import random
 import datetime
+import os
+from scipy import misc
+import cv2
 
 # set summary dir for tensorflow with FLAGS
 flags = tf.app.flags
@@ -28,18 +31,48 @@ NumClasses = 2 # number of output classes
 NumSupportsPerClass = 2
 NumSupports = NumClasses * NumSupportsPerClass
 #Dropout = 0.5 # droupout parameters in the FNN layer - currently not used
+TrainSize = 10
+TestSize = 200
 EvalFreq = 200 # evaluate on every 1000th iteration
 
 # load data
-TrainData = np.load('/Users/Sophie/Desktop/Google Drive/Budapest/Code/CIFAR/cifar_oneshot_train_images.npy')
-TrainLabels = np.load('/Users/Sophie/Desktop/Google Drive/Budapest/Code/CIFAR/cifar_oneshot_train_labels.npy')
-TestData = np.load('/Users/Sophie/Desktop/Google Drive/Budapest/Code/CIFAR/cifar_oneshot_test_images.npy')
-TestLabels = np.load('/Users/Sophie/Desktop/Google Drive/Budapest/Code/CIFAR/cifar_oneshot_test_labels.npy')
+path = '../data'
+TrainData = np.load('{}/Cifar_train_data.npy'.format(path))
+TrainLabels = np.load('{}/Cifar_train_labels.npy'.format(path))
+TestData = np.load('{}/Cifar_test_data.npy'.format(path))
+TestLabels = np.load('{}/Cifar_test_labels.npy'.format(path))
 
-TrainLabels[TrainLabels == 6] = 0
-TrainLabels[TrainLabels == 9] = 1
-TestLabels[TestLabels == 6] = 0
-TestLabels[TestLabels == 9] = 1
+ClassTypes = [6, 9]
+
+TrainDataList = []
+TrainLabelList = []
+
+#randomize order
+permutation = np.random.permutation(TrainData.shape[0])
+TrainData = TrainData[permutation]
+TrainLabels = TrainLabels[permutation]
+for classnum in range(NumClasses):
+	train_indices = np.argwhere(TrainLabels == ClassTypes[classnum])[:, 0]
+	TrainDataList.append(TrainData[train_indices[0 : TrainSize]])
+	TrainLabelList.append([classnum] * TrainSize)
+
+TrainData = np.reshape(TrainDataList, [TrainSize * NumClasses, Size[0], Size[1], Size[2]])
+TrainLabels = np.reshape(TrainLabelList, [TrainSize * NumClasses])
+
+TestDataList = []
+TestLabelList = []
+
+#randomize order
+permutation = np.random.permutation(TestData.shape[0])
+TestData = TestData[permutation]
+TestLabels = TestLabels[permutation]
+for classnum in range(NumClasses):
+	test_indices = np.argwhere(TestLabels == ClassTypes[classnum])[:, 0]
+	TestDataList.append(TestData[test_indices[0 : TestSize]])
+	TestLabelList.append([classnum] * TestSize)
+
+TestData = np.reshape(TestDataList, [TestSize * NumClasses, Size[0], Size[1], Size[2]])
+TestLabels = np.reshape(TestLabelList, [TestSize * NumClasses])
 
 # create tensorflow graph
 InputData = tf.placeholder(tf.float32, [None, Size[0], Size[1], Size[2]]) # network input
@@ -59,8 +92,8 @@ def make_support_set(Data, Labels):
 		QueryIndices = np.argwhere(Labels == QueryClass)
 		permutation = np.random.permutation(QueryIndices.shape[0])
 		QueryIndices = QueryIndices[permutation]
-		SpecificIndex = np.random.randint(QueryIndices.shape[0])
 		QueryIndex = QueryIndices[0]
+
 
 		QueryData[i, :, :, :] = np.reshape(Data[QueryIndex], (Size[0], Size[1], Size[2]))
 		QueryLabel[i] = Labels[QueryIndex]
@@ -68,9 +101,8 @@ def make_support_set(Data, Labels):
 		for j in range(NumClasses):
 			if (j == QueryClass):
 				for k in range(NumSupportsPerClass):
-					if k != SpecificIndex:
-						SelectedSupports = Data[QueryIndices[1 + k]]
-						SupportDataList[i, k, j, :, :, :] = np.reshape(SelectedSupports, (Size[0], Size[1], Size[2]))
+					SelectedSupports = Data[QueryIndices[1 + k]]
+					SupportDataList[i, k, j, :, :, :] = np.reshape(SelectedSupports, (Size[0], Size[1], Size[2]))
 			else:
 				SupportIndices = np.argwhere(Labels == j)
 				permutation = np.random.permutation(SupportIndices.shape[0])
@@ -81,7 +113,7 @@ def make_support_set(Data, Labels):
 
 	return QueryData, SupportDataList, QueryLabel
 
-NumKernels = [32, 32, 32]
+NumKernels = [16, 16, 16]
 def MakeConvNet(Input, Size, First = False):
 	CurrentInput = Input
 	CurrentInput = (CurrentInput / 255.0) - 0.5
@@ -96,7 +128,7 @@ def MakeConvNet(Input, Size, First = False):
 
 			CurrentFilters = NumKernel
 			ConvResult = tf.nn.conv2d(CurrentInput, W, strides = [1, 1, 1, 1], padding = 'VALID') #VALID, SAME
-			ConvResult= tf.add(ConvResult, Bias)
+			ConvResult = tf.add(ConvResult, Bias)
 
 			# add batch normalization
 			'''beta = tf.get_variable('beta', [NumKernel], initializer = tf.constant_initializer(0.0))
@@ -184,13 +216,13 @@ with tf.Session(config = conf) as Sess:
 
 	# keep training until reach max iterations - other stopping criterion could be added
 
-	for Step in range(1, NumIteration):
+	for Step in range(1, NumIteration + 1):
 			QueryData, SupportDataList, Label = make_support_set(TrainData, TrainLabels)
 
 			# execute teh session
 			Summary, _, Acc, L = Sess.run([SummaryOp, Optimizer, Accuracy, Loss], feed_dict = {InputData: QueryData, InputLabels: Label, SupportData: SupportDataList})
 
-			if (Step % 10 == 0):
+			if (Step % 100 == 0):
 				print("Iteration: " + str(Step))
 				print("Accuracy: " + str(Acc))
 				print("Loss: " + str(L))
@@ -198,12 +230,13 @@ with tf.Session(config = conf) as Sess:
 			# independent test accuracy
 			if not Step % EvalFreq:
 				TotalAcc = 0
-				for i in range(BatchLength):
-					Data = TestData[i : i + BatchLength]
-					Label = TestLabels[i : i + BatchLength]
-					response = Sess.run(Accuracy, feed_dict = {InputData: Data, InputLabels: Label, SupportData: SupportDataList})
+				count = 0
+				for i in range(0, 2 * (TestSize / BatchLength)):
+					Data, SuppData, Label = make_support_set(TestData, TestLabels)
+					response = Sess.run(Accuracy, feed_dict = {InputData: Data, InputLabels: Label, SupportData: SuppData})
 					TotalAcc += response
-				TotalAcc /= i
+					count += 1.0
+				TotalAcc /= count
 				print("Independent Test set: ", TotalAcc)
 			SummaryWriter.add_summary(Summary, Step)
 

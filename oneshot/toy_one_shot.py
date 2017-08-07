@@ -31,7 +31,7 @@ NumClassesInSubSet = 2
 TrainSize = 7
 ValidationSize = 4
 TestSize = 9
-EvalFreq = 10 # evaluate on every 1000th iteration
+EvalFreq = 200 # evaluate on every 1000th iteration
 
 if (TrainSize + ValidationSize + TestSize != 20):
 	print("DATA NOT PROPERLY SPLIT")
@@ -100,7 +100,7 @@ def get_train_data(datalist, train_size = TrainSize, num_classes = NumClasses, S
 		img = misc.imread(train_set[k])
 		train_data[k, :, :] = misc.imresize(img, (Size[0], Size[1]))
 
-	train_labels = np.asarray([idx / train_size for idx in range(train_size * num_classes)])
+	train_labels = np.asarray([int(idx / train_size) for idx in range(train_size * num_classes)])
 
 	permutation = np.random.permutation(train_labels.shape[0])
 	train_labels = train_labels[permutation]
@@ -131,7 +131,7 @@ def get_validation_data(datalist, train_size = TrainSize, validation_size = Vali
 		img = misc.imread(validation_set[k])
 		validation_data[k, :, :] = misc.imresize(img, (Size[0], Size[1]))
 
-	validation_labels = np.asarray([idx / validation_size for idx in range(validation_size * num_classes)])
+	validation_labels = np.asarray([int(idx / validation_size) for idx in range(validation_size * num_classes)])
 
 	permutation = np.random.permutation(validation_labels.shape[0])
 	validation_labels = validation_labels[permutation]
@@ -162,7 +162,7 @@ def get_test_data(datalist, train_size = TrainSize, test_size = TestSize, valida
 		img = misc.imread(test_set[k])
 		test_data[k, :, :] = misc.imresize(img, (Size[0], Size[1]))
 
-	test_labels = np.asarray([idx / test_size for idx in range(test_size * num_classes)])
+	test_labels = np.asarray([int(idx / test_size) for idx in range(test_size * num_classes)])
 
 	permutation = np.random.permutation(test_labels.shape[0])
 	test_labels = test_labels[permutation]
@@ -354,7 +354,7 @@ with tf.Session(config = conf) as Sess:
 			Summary, _, Acc, L, p, c, cp = Sess.run([SummaryOp, Optimizer, Accuracy, Loss, Pred, Correct, CorrectPredictions],
 				feed_dict = {InputData: QueryData, InputLabels: Label, SupportData: SupportDataList})
 
-			if (Step % 10 == 0):
+			if (Step % 50 == 0):
 				print("Iteration: " + str(Step))
 				print("Accuracy: " + str(Acc))
 				print("Loss: " + str(L))
