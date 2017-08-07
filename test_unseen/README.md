@@ -10,7 +10,7 @@ In each case in order to create the graphs I saved a list of values into a csv f
 
 As mentioned above the results that we expected to see from this research were mostly seen. The fact that the network without the FCL tends to classify the unseen classes more in the middle is another potential benefit to eliminating the FCL from networks. When preparing to construct both of the graphs that can be seen below the networks were trained for classes 6 and 9 and then tested for all of the remaining MNIST classes. As seen in the graphs the other classes in the graph for the network without the FCL tend more towards the middle (reference line) while the other classes in the graph for the network with the FCL tend to be on either side of the reference line. Of course there are a few exceptions to this general trend, but we were happy to see that the trend mostly held. 
 
+<center><img src="https://github.com/slancas1/budapest_research/blob/master/pictures/noFCLunseen.png" width="500" height="373.03" /></center>
 
-![noFCL](https://github.com/slancas1/budapest_research/blob/master/pictures/noFCLunseen.png)
-![FCL](https://github.com/slancas1/budapest_research/blob/master/pictures/FCLunseen.png)
+<center><img src="https://github.com/slancas1/budapest_research/blob/master/pictures/FCLunseen.png" width="500" height="371.97" /></center>
 
