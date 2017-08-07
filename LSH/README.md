@@ -1,4 +1,4 @@
-## Locality Sensitive Hashing (LSH)
+# Locality Sensitive Hashing (LSH)
 
 For the last few weeks of the summer I worked on implementing and testing [Locality Sensitive Hashing (LSH)] in some of our already existing networks. This was a very long and extensive process. Once we got a working implementation in one of our oneshot learning networks I decided to test the benefits of the LSH by running [timing and accuracy tests]. In order to make the testing as comprehensive as possible I ran the LSH oneshot code using three different distance metrics to calculate the distance from the query to the closest support and did this for three different data sets. 
 
