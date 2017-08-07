@@ -7,7 +7,8 @@ We worked with CNNs towards the end of our training. We did the introductory exe
 The main difference between Cellular Neural Networks (CNNs) and normal Convolutional Neural Networks (CoNNs) is that all of the operations that occur in CNNs are local operations, meaning that communication is only allowed between neighboring units. This quality of CNNs makes their implementations extremely efficient. An important quality of CNNs is that they are structured as a MxN grid of units which is why they can only communicate with direct neighbors (SEE PICTURE BELOW). Feel free to browse the [Wikipedia page on CNNs] to find out more information.
 
 
-<center><img src="https://github.com/slancas1/budapest_research/blob/master/pictures/cnns.png" width="200" height="188.71" /></center>
+
+<center><img src="https://github.com/slancas1/budapest_research/blob/master/pictures/cnns.png" width="400" height="377.41" /></center>
 
 
 [here]: https://github.com/slancas1/budapest_research/tree/master/CNN_friendly_CoNN
