@@ -1,4 +1,4 @@
-## Cellular Neural Network (CNN) Boundaries
+# Cellular Neural Network (CNN) Boundaries
 
 After doing the CNN simulation problems that can be seen in the CNN_simulation directory we decided to take the simulations one step further. The simulation only thresholded the inner pixels and we wanted it to threshold the outer pixels as well. In order to threshold the outer pixels we needed to implement boundary conditions. We did this in three different ways:
 
