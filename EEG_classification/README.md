@@ -1,4 +1,4 @@
-## EEG Classification
+# EEG Classification
 
 We decided that in order to apply all that we learned this summer we would work on a side project using the resources the university could offer us. One of the labs at the university had access to [EEGs], which is a device that can test electrical activity in the brain. Once given access to this device we worked on recording and parsing data so that we could decide what type of network to try the problem on. We decided that because it was not reasonable to collect a ton of data using the EEG, the problem would work best in a oneshot learning network. We eventually tried to classify three different problems using the EEG. 
 
