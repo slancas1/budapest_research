@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 
-# this is the one-shot code for omniglot data set with LSH implemented
+# this is the one-shot code for MNIST data set with LSH implemented
 
 from __future__ import print_function
 import tensorflow as tf
@@ -25,19 +25,65 @@ flags.DEFINE_string('summary_dir', '/tmp/tutorial/{}'.format(dt), 'Summaries dir
 # parameters
 BatchLength = 14  # 32 images are in a minibatch
 Size = [28, 28, 1]
-NumIteration = 100
+NumIteration = 15000
 LearningRate = 1e-4 # learning rate of the algorithm
 NumClasses = 2 # number of output classes
 NumSupportsPerClass = 2
 NumClassesInSubSet = 2
-TrainSize = 6
-ValidationSize = 7
+TrainSize = 7
+#ValidationSize = 7
 TestSize = 7
-EvalFreq = 50 # evaluate on every 1000th iteration
+EvalFreq = 200 # evaluate on every 1000th iteration
 
-if (TrainSize + ValidationSize + TestSize != 20):
+# load data
+path = '../data/'
+TrainData = np.load('{}full_train_images.npy'.format(path))
+TrainLabels = np.load('{}full_train_labels.npy'.format(path))
+TestData = np.load('{}full_test_images.npy'.format(path))
+TestLabels = np.load('{}full_test_labels.npy'.format(path))
+#ValidationData = np.load('{}6and9_oneshot_validation_images.npy'.format(path))
+#ValidationLabels = np.load('{}6and9_oneshot_validation_labels.npy'.format(path))
+
+'''TrainLabels[TrainLabels == 6] = 0
+TrainLabels[TrainLabels == 9] = 1
+TestLabels[TestLabels == 6] = 0
+TestLabels[TestLabels == 9] = 1
+ValidationLabels[ValidationLabels == 6] = 0
+ValidationLabels[ValidationLabels == 9] = 1'''
+
+'''if (TrainSize + ValidationSize + TestSize != 20):
 	print("DATA NOT PROPERLY SPLIT")
-	exit(1)
+	exit(1)'''
+
+TrainDataList = []
+TrainLabelList = []
+
+#randomize order
+permutation = np.random.permutation(TrainData.shape[0])
+TrainData = TrainData[permutation]
+TrainLabels = TrainLabels[permutation]
+for classnum in range(NumClasses):
+	train_indices = np.argwhere(TrainLabels == classnum)[:, 0]
+	TrainDataList.append(TrainData[train_indices[0 : TrainSize]])
+	TrainLabelList.append([classnum] * TrainSize)
+
+TrainData = np.reshape(TrainDataList, [TrainSize * NumClasses, Size[0], Size[1], Size[2]])
+TrainLabels = np.reshape(TrainLabelList, [TrainSize * NumClasses])
+
+TestDataList = []
+TestLabelList = []
+
+#randomize order
+permutation = np.random.permutation(TestData.shape[0])
+TestData = TestData[permutation]
+TestLabels = TestLabels[permutation]
+for classnum in range(NumClasses):
+	test_indices = np.argwhere(TestLabels == classnum)[:, 0]
+	TestDataList.append(TestData[test_indices[0 : TestSize]])
+	TestLabelList.append([classnum] * TestSize)
+
+TestData = np.reshape(TestDataList, [TestSize * NumClasses, Size[0], Size[1], Size[2]])
+TestLabels = np.reshape(TestLabelList, [TestSize * NumClasses])
 
 # create tensorflow graph
 InputData = tf.placeholder(tf.float32, [None, Size[0], Size[1], Size[2]]) # network input
@@ -51,132 +97,6 @@ def ncr(n, r):
 	npr = math.factorial(n) / math.factorial(n - r)
 	ncr = npr / math.factorial(r)
 	return ncr
-
-# function that makes a list of all of the alphabet / character folders
-def make_dir_list(data_dir):
-	path_back = "{}/images_background/".format(data_dir)
-	path_eval = "{}/images_evaluation/".format(data_dir)
-	alphadirs_back = [directory for directory in os.listdir(path_back) if not directory.startswith('.')]
-	alphadirs_eval = [directory for directory in os.listdir(path_eval) if not directory.startswith('.')]
-
-	train_datalist = []
-	test_datalist = []
-
-	for alphabet in alphadirs_back:
-		charpath = "{}{}/".format(path_back, alphabet)
-		chardirs = [char for char in os.listdir(charpath) if not char.startswith('.')]
-		for character in chardirs:
-			train_datalist.append("{}{}/".format(charpath, character))
-
-	for alphabet in alphadirs_eval:
-		charpath = "{}{}/".format(path_eval, alphabet)
-		chardirs = [char for char in os.listdir(charpath) if not char.startswith('.')]
-		for character in chardirs:
-			test_datalist.append("{}{}/".format(charpath, character))
-
-	train_datalist = np.asarray(train_datalist)
-	test_datalist = np.asarray(test_datalist)
-
-	return train_datalist, test_datalist
-
-# the following code will randomly select five of these directories to use for testing and training
-def get_train_data(datalist, train_size = TrainSize, num_classes = NumClasses, Size = [28, 28]):
-
-	#class_nums = random.sample(range(0, len(datalist)), num_classes)
-	class_nums = range(num_classes)
-	dir_names = datalist[class_nums]
-
-	images = []
-
-	for dir_name in dir_names:
-		images.append(['{}{}'.format(dir_name, img) for img in os.listdir(dir_name) if not img.startswith('.')])
-
-	images = np.asarray(images)
-
-	train_set = images[:, 0 : train_size]
-	train_set = np.reshape(train_set, num_classes * train_size)
-
-	train_data = np.zeros([train_size * num_classes, Size[0], Size[1]])
-
-	for k in range(train_size * num_classes):
-		img = misc.imread(train_set[k])
-		train_data[k, :, :] = misc.imresize(img, (Size[0], Size[1]))
-
-	train_labels = np.asarray([int(idx / train_size) for idx in range(train_size * num_classes)])
-
-	permutation = np.random.permutation(train_labels.shape[0])
-	train_labels = train_labels[permutation]
-	train_data = train_data[permutation]
-
-	return train_data, train_labels
-
-def get_validation_data(datalist, train_size = TrainSize, validation_size = ValidationSize, num_classes = NumClasses, Size = [28, 28]):
-
-	#class_nums = random.sample(range(0, len(datalist)), num_classes)
-	class_nums = range(num_classes)
-	dir_names = datalist[class_nums]
-
-	images = []
-
-	for dir_name in dir_names:
-		images.append(['{}{}'.format(dir_name, img) for img in os.listdir(dir_name) if not img.startswith('.')])
-
-	images = np.asarray(images)
-
-	validation_set = images[:, train_size : train_size + validation_size]
-	validation_set = np.reshape(validation_set, num_classes * validation_size)
-
-	validation_data = np.zeros([validation_size * num_classes, Size[0], Size[1]])
-
-	for k in range(validation_size * num_classes):
-		img = misc.imread(validation_set[k])
-		validation_data[k, :, :] = misc.imresize(img, (Size[0], Size[1]))
-
-	validation_labels = np.asarray([int(idx / validation_size) for idx in range(validation_size * num_classes)])
-
-	permutation = np.random.permutation(validation_labels.shape[0])
-	validation_labels = validation_labels[permutation]
-	validation_data = validation_data[permutation]
-
-	return validation_data, validation_labels
-
-def get_test_data(datalist, train_size = TrainSize, test_size = TestSize, validation_size = ValidationSize, num_classes = NumClasses, Size = [28, 28]):
-
-	#class_nums = random.sample(range(0, len(datalist)), num_classes)
-	class_nums = range(num_classes)
-
-	dir_names = datalist[class_nums]
-
-	images = []
-
-	for dir_name in dir_names:
-		images.append(['{}{}'.format(dir_name, img) for img in os.listdir(dir_name) if not img.startswith('.')])
-
-	images = np.asarray(images)
-
-	test_set = images[:, train_size + validation_size : train_size + validation_size + test_size]
-	test_set = np.reshape(test_set, num_classes * test_size)
-
-	test_data = np.zeros([test_size * num_classes, Size[0], Size[1]])
-
-	for k in range(test_size * num_classes):
-		img = misc.imread(test_set[k])
-		test_data[k, :, :] = misc.imresize(img, (Size[0], Size[1]))
-
-	test_labels = np.asarray([int(idx / test_size) for idx in range(test_size * num_classes)])
-
-	permutation = np.random.permutation(test_labels.shape[0])
-	test_labels = test_labels[permutation]
-	test_data = test_data[permutation]
-
-	return test_data, test_labels
-
-#make the list of extensions to be used by the get data functions
-data_location = '../../data'
-datalist, _ = make_dir_list(data_location)
-
-#np.random.shuffle(datalist)
-datalist = datalist[0 : NumClassesInSubSet]
 
 def all_support_combos(Data, Labels):
 	SupportDataList = []
@@ -200,12 +120,11 @@ def all_support_combos(Data, Labels):
 	FullSupportList = np.asarray(FullSupportList)
 	return FullSupportList
 
-def support_index_to_data(Data, Input, class_size = ValidationSize):
+def support_index_to_data(Data, Input, class_size = TrainLabels.shape[0]):
 	DataList = []
 	for ind in Input:
 		DataList.append(Data[ind])
 	DataList = np.asarray(DataList)
-	DataList = np.expand_dims(np.expand_dims(DataList, 4), 0)
 	#figure out how to not hard-code 6
 	DataTileShape = np.stack([NumClasses * class_size, 1, 1, 1, 1, 1])
 	DataList = np.tile(DataList, DataTileShape)
@@ -227,16 +146,15 @@ def make_support_set(Data, Labels):
 		SpecificIndex = np.random.randint(QueryIndices.shape[0])
 		QueryIndex = QueryIndices[0]
 
-
 		QueryData[i, :, :, :] = np.reshape(Data[QueryIndex], (Size[0], Size[1], Size[2]))
 		QueryLabel[i] = Labels[QueryIndex]
 
 		for j in range(NumClasses):
 			if (j == QueryClass):
 				for k in range(NumSupportsPerClass):
-					if k != SpecificIndex:
-						SelectedSupports = Data[QueryIndices[1 + k]]
-						SupportDataList[i, k, j, :, :, :] = np.reshape(SelectedSupports, (Size[0], Size[1], Size[2]))
+					#if k != SpecificIndex:
+					SelectedSupports = Data[QueryIndices[1 + k]]
+					SupportDataList[i, k, j, :, :, :] = np.reshape(SelectedSupports, (Size[0], Size[1], Size[2]))
 			else:
 				SupportIndices = np.argwhere(Labels == j)
 				permutation = np.random.permutation(SupportIndices.shape[0])
@@ -524,9 +442,17 @@ with tf.name_scope('loss'):
 		TotDiff = tf.subtract(DiffToDecrease, DiffToIncrease)
 		return TotDiff
 
-	Signs = tf.stack([OneHotLabels[:, 0], OneHotLabels[:, 0], OneHotLabels[:, 1], OneHotLabels[:, 1]])
+	Signs = []
+
+	for i in range (NumClasses):
+		for j in range(NumSupportsPerClass):
+			Signs.append(OneHotLabels[:, i])
+
+	Signs = tf.stack(Signs)
+
 	Signs = tf.transpose(Signs, [1, 0])
 	Signs = tf.expand_dims(Signs, -1)
+
 	Signs = tf.tile(Signs, [1, 1, OutputDimension])
 	AntiSigns = 1 - Signs
 	ToComp = tf.multiply(Signs, ProjectedQuery)
@@ -624,7 +550,6 @@ with tf.Session(config = conf) as Sess:
 
 	# keep training until reach max iterations - other stopping criterion could be added
 	for Step in range(1, NumIteration + 1):
-			TrainData, TrainLabels = get_train_data(datalist)
 			# need to change make_support_set to create all combinations
 			# need to calculate the accuracy for each combination and keep track of which pair of supports produces the max accuracy
 			QueryData, SupportDataList, Label = make_support_set(TrainData, TrainLabels)
@@ -642,7 +567,7 @@ with tf.Session(config = conf) as Sess:
 			with open('timeline.json', 'w') as f:
 				f.write(ctf)'''
 
-			if (Step % 50 == 0):
+			if (Step % 100 == 0):
 				print("Iteration: " + str(Step))
 				print("Accuracy: " + str(Acc))
 				print("Loss: " + str(L))
@@ -654,11 +579,10 @@ with tf.Session(config = conf) as Sess:
 				TotalAcc = 0
 				count = 0
 				for i in range(BatchLength):
-					TestData, TestLabels = get_test_data(datalist)
-					TestData, SuppData, TestLabels = make_support_set(TestData, TestLabels)
+					TestDataUse, SuppData, TestLabelsUse = make_support_set(TestData, TestLabels)
 
 					Acc, L, c, Ind = Sess.run([Accuracy, Loss, SelectedInd, Correct],
-						feed_dict = {InputData: TestData, InputLabels: TestLabels, SupportData: SuppData, KeepProb: 1.0})
+						feed_dict = {InputData: TestDataUse, InputLabels: TestLabelsUse, SupportData: SuppData, KeepProb: 1.0})
 					TotalAcc += Acc
 					count += 1
 				TotalAcc = TotalAcc / count
@@ -668,49 +592,74 @@ with tf.Session(config = conf) as Sess:
 	print("Finding best supports...")
 
 	AllCombos = all_support_combos(TrainData, TrainLabels)
-	ValidationData, ValidationLabels = get_validation_data(datalist)
 	ValidationData = np.reshape(ValidationData, [ValidationData.shape[0], Size[0], Size[1], Size[2]])
+
+	permutation = np.random.permutation(ValidationData.shape[0])
+	ValidationData = ValidationData[permutation]
+	ValidationLabels = ValidationLabels[permutation]
+	valInds = np.random.choice(ValidationData.shape[0], 2 * ValidationSize, False)
+	ValidationData = ValidationData[valInds]
+	ValidationLabels = ValidationLabels[valInds]
 
 	MaxAcc = 0
 	MinLoss = float("Inf")
 	MaxIndex = 0
+
 	for i in range(len(AllCombos)):
-		SuppData = support_index_to_data(TrainData, AllCombos[i])
-		Acc, LossVal = Sess.run([Accuracy, Loss],
-			feed_dict = {InputData: ValidationData, InputLabels: ValidationLabels, SupportData: SuppData, KeepProb: 1.0})
-		if (LossVal < MinLoss):
-			MaxAcc = Acc
-			MinLoss = LossVal
-			MaxIndex = i
+		#SuppData = support_index_to_data(TrainData, AllCombos[i], class_size = 7)
+		SuppData = support_index_to_data(TrainData, AllCombos[i], class_size = int(BatchLength / 2))
+			#TotalAcc = 0
+		SummedLoss = 0
+		NumElements = 0
+		for j in range(0, ValidationData.shape[0], BatchLength):
+			if (j + BatchLength) <= TestData.shape[0]:
+				VD = ValidationData[j : (j + BatchLength), :, :, :]
+				VL = ValidationLabels[j : (j + BatchLength)]
+				Acc, LossVal = Sess.run([Accuracy, Loss],
+					feed_dict = {InputData: VD, InputLabels: VL, SupportData: SuppData, KeepProb: 1.0})
+				SummedLoss += LossVal
+				NumElements += 1
+			LossVal = float(SummedLoss) / float(NumElements)
+			if (LossVal < MinLoss):
+				MaxAcc = Acc
+				MinLoss = LossVal
+				MaxIndex = i
 
 	print("Best Index: {}".format(MaxIndex))
 	print("Maximum Accuracy: {}".format(MaxAcc))
 	print("Minimum Loss: {}".format(MinLoss))
 
 	print("Testing best combination of supports...")
-	SuppData = support_index_to_data(TrainData, AllCombos[MaxIndex], class_size = TestSize)
-	TestData, TestLabels = get_test_data(datalist)
-	TestData = np.reshape(TestData, [NumClasses * TestSize, Size[0], Size[1], Size[2]])
+	SuppData = support_index_to_data(TrainData, AllCombos[MaxIndex], class_size = int(BatchLength / 2))
+	#TestData, TestLabels = get_test_data(datalist)
+	#TestData = np.reshape(TestData, [NumClasses * TestSize, Size[0], Size[1], Size[2]])
 
 	#loop through different pieces of the TestData
 	#stride = NumClasses * ValidationSize
+	permutation = np.random.permutation(TestData.shape[0])
+	TestData = TestData[permutation]
+	TestLabels = TestLabels[permutation]
+	testInds = np.random.choice(TestData.shape[0], 2 * TestSize, False)
+	TestData = TestData[testInds]
+	TestLabels = TestLabels[testInds]
+
 	accuracy = 0
 	count = 0
-	for k in range(10):
-		permutation = np.random.permutation(TestData.shape[0])
-		TestData = TestData[permutation]
-		TestLabels = TestLabels[permutation]
+	for k in range(0, TestData.shape[0], BatchLength):
+		if (k + BatchLength) <= TestData.shape[0]:
+			TD = TestData[k : (k + BatchLength), :, :, :]
+			TL = TestLabels[k : (k + BatchLength)]
 
 		Acc, c = Sess.run([Accuracy, Correct],
-			feed_dict = {InputData: TestData, InputLabels: TestLabels, SupportData: SuppData, KeepProb: 1.0})
+			feed_dict = {InputData: TD, InputLabels: TL, SupportData: SuppData, KeepProb: 1.0})
 		count += 1
 		accuracy += Acc
 
 	accuracy /= count
 	print("Independent Test Accuracy (best supports):", accuracy)
 
-	#print('Saving model...')
-	#print(Saver.save(Sess, "./saved/model"))
+	print('Saving model...')
+	print(Saver.save(Sess, "./saved/model"))
 
 print("Optimization Finished!")
 print("Execute tensorboard: tensorboard --logdir=" + FLAGS.summary_dir)

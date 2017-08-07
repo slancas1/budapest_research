@@ -16,7 +16,7 @@ INCLUDE LSIT OF PARAMETERS
 2. Omniglot
 3. CIFAR-10
 
-As can be seen in the table linked above, by adding LSH the time needed to classify a query element was significantly decreased. However, the accuracy results that were yielded for the LSH oneshot implementation were pretty inconclusive which is not unusual for oneshot networks. In order to more concretely test the affects of LSH on accuracy I started to implement the LSH metric in on of our other networks, specifically a network without a Fully Connected Layer (FCL). I did not get to finish this part of the research before I had to leave but may continue with it as the results would be very interesting.
+As can be seen in the table linked above, by adding LSH the time needed to classify a query element was significantly decreased. However, the accuracy results that were yielded for the LSH oneshot implementation were pretty inconclusive which is not unusual for oneshot networks.
 
 ## Network
 

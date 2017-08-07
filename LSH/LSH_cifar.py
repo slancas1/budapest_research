@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 
-# this is the one-shot code for MNIST data set with LSH implemented
+# this is the one-shot code for CIFAR data set with LSH implemented
 
 from __future__ import print_function
 import tensorflow as tf
@@ -24,7 +24,7 @@ flags.DEFINE_string('summary_dir', '/tmp/tutorial/{}'.format(dt), 'Summaries dir
 
 # parameters
 BatchLength = 14  # 32 images are in a minibatch
-Size = [28, 28, 1]
+Size = [32, 32, 3]
 NumIteration = 15000
 LearningRate = 1e-4 # learning rate of the algorithm
 NumClasses = 2 # number of output classes
@@ -36,13 +36,13 @@ TestSize = 7
 EvalFreq = 200 # evaluate on every 1000th iteration
 
 # load data
-path = '../../data'
-TrainData = np.load('{}/6and9_oneshot_train_images.npy'.format(path))
-TrainLabels = np.load('{}/6and9_oneshot_train_labels.npy'.format(path))
-TestData = np.load('{}/6and9_oneshot_test_images.npy'.format(path))
-TestLabels = np.load('{}/6and9_oneshot_test_labels.npy'.format(path))
-ValidationData = np.load('{}/6and9_oneshot_validation_images.npy'.format(path))
-ValidationLabels = np.load('{}/6and9_oneshot_validation_labels.npy'.format(path))
+path = '../data'
+TrainData = np.load('{}/cifar_oneshot_train_images.npy'.format(path))
+TrainLabels = np.load('{}/cifar_oneshot_train_labels.npy'.format(path))
+TestData = np.load('{}/cifar_oneshot_test_images.npy'.format(path))
+TestLabels = np.load('{}/cifar_oneshot_test_labels.npy'.format(path))
+ValidationData = np.load('{}/cifar_oneshot_validation_images.npy'.format(path))
+ValidationLabels = np.load('{}/cifar_oneshot_validation_labels.npy'.format(path))
 
 TrainLabels[TrainLabels == 6] = 0
 TrainLabels[TrainLabels == 9] = 1
@@ -412,7 +412,14 @@ with tf.name_scope('loss'):
 		TotDiff = tf.subtract(DiffToDecrease, DiffToIncrease)
 		return TotDiff
 
-	Signs = tf.stack([OneHotLabels[:, 0], OneHotLabels[:, 0], OneHotLabels[:, 1], OneHotLabels[:, 1]])
+	Signs = []
+
+	for i in range (NumClasses):
+		for j in range(NumSupportsPerClass):
+			Signs.append(OneHotLabels[:, i])
+
+	Signs = tf.stack(Signs)
+
 	Signs = tf.transpose(Signs, [1, 0])
 	Signs = tf.expand_dims(Signs, -1)
 	Signs = tf.tile(Signs, [1, 1, OutputDimension])
@@ -507,8 +514,8 @@ with tf.Session(config = conf) as Sess:
 	Sess.run(Init)
 	SummaryWriter = tf.summary.FileWriter(FLAGS.summary_dir, tf.get_default_graph())
 	Saver = tf.train.Saver()
-	#runOptions = tf.RunOptions(trace_level = tf.RunOptions.FULL_TRACE)
-	#runMetaData = tf.RunMetadata()
+	runOptions = tf.RunOptions(trace_level = tf.RunOptions.FULL_TRACE)
+	runMetaData = tf.RunMetadata()
 
 	# keep training until reach max iterations - other stopping criterion could be added
 	for Step in range(1, NumIteration + 1):
@@ -518,18 +525,18 @@ with tf.Session(config = conf) as Sess:
 
 			# execute teh session
 			Summary, _, _, CS, Acc, L,  c, cp, IGD, CGD = Sess.run([SummaryOp, Optimizer1, Optimizer2, CosSim, Accuracy, Loss, Correct, SelectedInd, InGroupDiff, CrossGroupDiff],
-				#options = runOptions, run_metadata = runMetaData,
+				options = runOptions, run_metadata = runMetaData,
 				feed_dict = {InputData: QueryData, InputLabels: Label, SupportData: SupportDataList, KeepProb: 0.8})
 
-			#SummaryWriter.add_run_metadata(runMetaData, 'step%d' % Step)
-			#SummaryWriter.add_summary(Summary, Step)
+			SummaryWriter.add_run_metadata(runMetaData, 'step%d' % Step)
+			SummaryWriter.add_summary(Summary, Step)
 
 			'''tl = timeline.Timeline(runMetaData.step_stats)
 			ctf = tl.generate_chrome_trace_format()
 			with open('timeline.json', 'w') as f:
 				f.write(ctf)'''
 
-			if (Step % 50 == 0):
+			if (Step % 100 == 0):
 				print("Iteration: " + str(Step))
 				print("Accuracy: " + str(Acc))
 				print("Loss: " + str(L))
