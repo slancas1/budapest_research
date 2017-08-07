@@ -8,7 +8,7 @@ The main difference between Cellular Neural Networks (CNNs) and normal Convoluti
 
 
 
-<center><img src="https://github.com/slancas1/budapest_research/blob/master/pictures/cnns.png" width="400" height="377.41" /></center>
+<center><img src="https://github.com/slancas1/budapest_research/blob/master/pictures/cnns.png" align="center" width="400" height="377.41" /></center>
 
 
 [here]: https://github.com/slancas1/budapest_research/tree/master/CNN_friendly_CoNN
