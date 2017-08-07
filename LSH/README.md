@@ -16,7 +16,7 @@ INCLUDE LSIT OF PARAMETERS
 2. Omniglot
 3. CIFAR-10
 
-As can be seen in the table linked above, by adding LSH the time needed to classify a query element was significantly decreased. However, the accuracy results that were yielded for the LSH oneshot implementation were pretty inconclusive which is not unusual for oneshot networks.
+As can be seen in the table linked above, by adding LSH the time needed to classify a query element was significantly decreased. However, the accuracy results that were yielded for the LSH one-shot implementation were pretty inconclusive which is not unusual for one-shot networks.
 
 ## Network
 
