@@ -14,8 +14,8 @@ I worked closely with my supervisor, Andras Horvath, to create a working impleme
 
 After running extensive tests on the LSH codes and other one-shot networks which utilize cosine similarity I found that the LSH yielded very promising results. All of the results from the different tests that I ran can be found at [this link]. As can be seen in the tables that are linked above, by adding LSH the time needed to classify a query element was significantly decreased, sometimes by as much as 50%. While the accuracy results that were yielded for the LSH one-shot implementation were not as conclusive it appears that the LSH may reduce the accuracies slightly. However, my supervisor and I discussed that there are many different parameters that we could change which may increase the accuracy of the LSH networks, so this is something that should be looked into further. The graphs below show some of the results that I found when comparing LSH and cosine similarity in one-shot networks.
 
-![Time to Classify Query vs. Number of Supports](https://github.com/slancas1/budapest_research/blob/master/pictures/numsuppstime.png)
-![Classification Time vs. Test Accuracy](https://github.com/slancas1/budapest_research/blob/master/pictures/accandtime.png)
+<center><img src="https://github.com/slancas1/budapest_research/blob/master/pictures/numsuppstime.png" width="700" height="427.778" /></center>
+<center><img src="https://github.com/slancas1/budapest_research/blob/master/pictures/accandtime.png" width="700" height="449.495" /></center>
 
 ## Future Work
 
