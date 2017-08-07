@@ -1,4 +1,4 @@
-## Cellular Neural Network (CNN) Simulations
+# Cellular Neural Network (CNN) Simulations
 
 In order to better understand how CNNs work we worked on these two different CNN implementations.
 
